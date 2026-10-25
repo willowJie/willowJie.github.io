@@ -98,6 +98,7 @@
   <!-- 编辑弹窗 -->
   <div id="editModal" class="modal" hidden>
     <div class="modal-card">
+      <button id="editClose" class="modal-close" aria-label="关闭">✕</button>
       <h3>编辑标题</h3>
       <input id="editTitle" type="text" placeholder="标题" />
       <label class="row">
@@ -109,6 +110,12 @@
         <button id="editCancel" class="ghost">取消</button>
       </div>
     </div>
+  </div>
+
+  <!-- 新版本提示 -->
+  <div id="updateBanner" hidden>
+    <span>已发布新版本</span>
+    <button id="updateBtn" class="update-btn">点击刷新</button>
   </div>
 
   <div id="toast" class="toast" hidden></div>
