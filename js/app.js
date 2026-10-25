@@ -247,6 +247,11 @@ function openEdit(it) {
   $('editModal').hidden = false;
 }
 
+function closeEdit() {
+  $('editModal').hidden = true;
+  delete $('editModal').dataset.id;
+}
+
 async function saveEdit() {
   const id = $('editModal').dataset.id;
   const it = items.find((i) => i.id === id);
@@ -295,6 +300,36 @@ function updateNotifyStatus() {
   const perm = notificationPermission();
   el.textContent =
     perm === 'granted' ? '已授权，将常驻提醒' : perm === 'denied' ? '通知被拒绝，请在浏览器设置中开启' : '尚未授权';
+}
+
+// ---------- 版本更新：发现新版本自动提示并可一键刷新（解决手机缓存不更新问题）----------
+function setupUpdate(reg) {
+  if (!reg) return;
+  const prompt = () => {
+    $('updateBanner').hidden = false;
+    setTimeout(() => {
+      if (!$('updateBanner').hidden) applyUpdate();
+    }, 2500);
+  };
+  if (reg.waiting) prompt();
+  reg.addEventListener('updatefound', () => {
+    const nw = reg.installing;
+    if (!nw) return;
+    nw.addEventListener('statechange', () => {
+      if (nw.state === 'installed' && navigator.serviceWorker.controller) prompt();
+    });
+  });
+}
+
+function applyUpdate() {
+  if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+    location.reload();
+    return;
+  }
+  navigator.serviceWorker.controller.postMessage({ type: 'skip-waiting' });
+  const done = () => location.reload();
+  navigator.serviceWorker.addEventListener('controllerchange', done, { once: true });
+  setTimeout(done, 1500);
 }
 
 // ---------- 初始化 ----------
@@ -365,7 +400,13 @@ function bindEvents() {
   };
 
   $('editSave').onclick = saveEdit;
-  $('editCancel').onclick = () => ($('editModal').hidden = true);
+  $('editCancel').onclick = closeEdit;
+  $('editClose').onclick = closeEdit;
+  $('updateBtn').onclick = applyUpdate;
+  // 点弹窗外灰色区域也可关闭
+  $('editModal').addEventListener('click', (e) => {
+    if (e.target === $('editModal')) closeEdit();
+  });
 
   // 安装到主屏
   let deferredPrompt = null;
@@ -391,7 +432,8 @@ async function init() {
   $('notifyTime').value = s.time;
   updateNotifyStatus();
 
-  await registerSW();
+  const reg = await registerSW();
+  setupUpdate(reg);
   items = await getAll();
   renderAll2();
   bindEvents();
