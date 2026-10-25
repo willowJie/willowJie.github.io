@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="description" content="基于艾宾浩斯遗忘曲线的每日复习提醒工具，安卓手机可用" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>记忆助手 · 遗忘曲线复习</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">🧠 记忆助手</div>
+    <button id="installBtn" class="install-btn" hidden>安装</button>
+  </header>
+
+  <main>
+    <!-- 今日复习 -->
+    <section id="view-today" class="view active">
+      <div class="add-card">
+        <input id="quickInput" type="text" placeholder="今天记了什么？输入标题……" autocomplete="off" />
+        <div class="add-row">
+          <input id="quickDate" type="date" title="学习日期，默认今天（可改历史补记）" />
+          <button id="addBtn" class="primary">添加</button>
+        </div>
+        <div class="hint">输入即开始记忆，系统会在第 1 / 2 / 4 / 7 / 15 / 30 天提醒你复习。</div>
+      </div>
+      <div id="todayCount" class="today-count"></div>
+      <div id="todayList" class="list"></div>
+    </section>
+
+    <!-- 全部 -->
+    <section id="view-all" class="view">
+      <div class="filter-row">
+        <select id="filterStatus">
+          <option value="active">进行中</option>
+          <option value="done">已完成</option>
+          <option value="all">全部</option>
+        </select>
+      </div>
+      <div id="allList" class="list"></div>
+    </section>
+
+    <!-- 统计 -->
+    <section id="view-stats" class="view">
+      <div id="statCards" class="stat-cards"></div>
+      <div class="settings-card about">
+        <h3>关于遗忘曲线</h3>
+        <p>艾宾浩斯研究发现，遗忘在学习后立即开始，且先快后慢。在关键节点复习可有效巩固长期记忆。</p>
+        <p class="muted">本工具采用标准节点：学习后第 1、2、4、7、15、30 天各提醒复习一次。</p>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section id="view-settings" class="view">
+      <div class="settings-card">
+        <h3>通知</h3>
+        <label class="switch-row">
+          <span>开启复习提醒（常驻通知栏）</span>
+          <input type="checkbox" id="notifyToggle" />
+        </label>
+        <label class="row">
+          <span>每天提醒时间</span>
+          <input type="time" id="notifyTime" value="09:00" />
+        </label>
+        <button id="authNotifyBtn" class="ghost">授权通知权限</button>
+        <button id="testNotifyBtn" class="ghost">发送测试通知</button>
+        <div id="notifyStatus" class="muted"></div>
+      </div>
+      <div class="settings-card">
+        <h3>数据</h3>
+        <button id="exportBtn" class="ghost">导出备份 (JSON)</button>
+        <button id="importBtn" class="ghost">导入备份</button>
+        <input id="importFile" type="file" accept="application/json" hidden />
+        <button id="clearDoneBtn" class="ghost">清除已归档条目</button>
+      </div>
+      <div class="settings-card about">
+        <h3>关于</h3>
+        <p class="muted">数据保存在本机浏览器，离线可用，不上传任何服务器。</p>
+        <p class="muted">安卓 Chrome 上：未复习的通知会常驻通知栏并持续提醒，复习打勾后自动清除。iOS 不支持常驻通知栏，仅打开时提醒。</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 底部导航 -->
+  <nav class="bottom-nav" id="tabs">
+    <button class="tab active" data-view="today"><span class="ico">📅</span><span>今日</span></button>
+    <button class="tab" data-view="all"><span class="ico">📚</span><span>全部</span></button>
+    <button class="tab" data-view="stats"><span class="ico">📊</span><span>统计</span></button>
+    <button class="tab" data-view="settings"><span class="ico">⚙️</span><span>设置</span></button>
+  </nav>
+
+  <!-- 编辑弹窗 -->
+  <div id="editModal" class="modal" hidden>
+    <div class="modal-card">
+      <h3>编辑标题</h3>
+      <input id="editTitle" type="text" placeholder="标题" />
+      <label class="row">
+        <span>学习日期</span>
+        <input id="editDate" type="date" />
+      </label>
+      <div class="modal-actions">
+        <button id="editSave" class="primary">保存</button>
+        <button id="editCancel" class="ghost">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
