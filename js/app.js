@@ -63,12 +63,15 @@ function cardHTML(it) {
   const stage = it.reviewStates.find((s) => !s.done);
   const today = todayStr();
   const od = overdueDays(it, today);
+  const shortDate = (ds) => (ds || '').slice(5); // 2026-10-26 -> 10-26
   const stageDots = it.reviewStates
     .map((s) => {
       let cls = 'stage-dot';
-      if (s.done) cls += ' done';
-      else if (stage && s.day === stage.day && s.dueDate <= today) cls += ' due';
-      return `<div class="${cls}" title="第${s.day}天"></div>`;
+      let dcls = 'stage-date';
+      if (s.done) { cls += ' done'; dcls += ' done'; }
+      else if (stage && s.day === stage.day && s.dueDate <= today) { cls += ' due'; dcls += ' due'; }
+      if (!s.done && s.dueDate === today) dcls += ' today';
+      return `<div class="stage-col"><div class="${cls}" title="第${s.day}天 · ${s.dueDate}"></div><div class="${dcls}">${shortDate(s.dueDate)}</div></div>`;
     })
     .join('');
   let actions;
