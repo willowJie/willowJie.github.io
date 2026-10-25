@@ -325,6 +325,9 @@ button.ghost:active { border-color: var(--primary); color: var(--primary); }
 }
 .bottom-nav .tab.active .ico { filter: none; }
 
+/* 修复：hidden 属性必须始终生效（否则 .modal 的 display:flex 会让弹窗常驻屏幕） */
+[hidden] { display: none !important; }
+
 /* 打开即强提醒横幅（不依赖系统通知，任何浏览器生效） */
 .loud-alert {
   background: linear-gradient(135deg, #ef4444, #f97316);
