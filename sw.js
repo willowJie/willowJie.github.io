@@ -1,5 +1,5 @@
 // Service Worker：离线缓存 + 后台周期检查并弹通知 + 常驻提醒控制
-const CACHE = 'memory-assistant-v4';
+const CACHE = 'memory-assistant-v5';
 const ASSETS = [
   './',
   './index.html',
