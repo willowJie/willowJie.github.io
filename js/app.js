@@ -248,8 +248,15 @@ function openEdit(it) {
 }
 
 async function saveEdit() {
-  const it = items.find((i) => i.id === $('editModal').dataset.id);
-  if (!it) return;
+  const id = $('editModal').dataset.id;
+  const it = items.find((i) => i.id === id);
+  if (!it) {
+    // 没有对应的条目（弹窗被误开）时不再静默失败，直接关掉并提示
+    $('editModal').hidden = true;
+    delete $('editModal').dataset.id;
+    toast('没有可保存的条目，弹窗已关闭');
+    return;
+  }
   const newDate = $('editDate').value;
   it.title = $('editTitle').value.trim() || '未命名';
   if (newDate && newDate !== it.createdAt) {
@@ -257,7 +264,12 @@ async function saveEdit() {
     it.reviewStates = buildReviewStates(newDate);
     it.status = 'active';
   }
-  await put(it);
+  try {
+    await put(it);
+  } catch (e) {
+    toast('保存失败，请重试');
+    return;
+  }
   items = await getAll();
   $('editModal').hidden = true;
   renderAll2();
