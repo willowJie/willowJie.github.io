@@ -1,5 +1,5 @@
 // Service Worker：离线缓存 + 后台周期检查并弹通知 + 常驻提醒控制
-const CACHE = 'memory-assistant-v3';
+const CACHE = 'memory-assistant-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -34,10 +34,18 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  // 网络优先：确保每次加载都拿到最新文件，离线时回退到缓存
   e.respondWith(
-    caches.match(e.request).then(
-      (cached) => cached || fetch(e.request).catch(() => caches.match('./index.html'))
-    )
+    (async () => {
+      try {
+        const fresh = await fetch(e.request);
+        const cache = await caches.open(CACHE);
+        cache.put(e.request, fresh.clone()).catch(() => {});
+        return fresh;
+      } catch (_) {
+        return (await caches.match(e.request)) || caches.match('./index.html');
+      }
+    })()
   );
 });
 
@@ -62,6 +70,8 @@ self.addEventListener('message', (e) => {
     self.registration
       .getNotifications({ tag: 'review-reminder' })
       .then((ns) => ns.forEach((n) => n.close()));
+  } else if (d.type === 'skip-waiting') {
+    self.skipWaiting();
   } else if (d.type === 'ensure-reminder' || d.type === 'notify') {
     e.waitUntil(doBackgroundCheck());
   }
