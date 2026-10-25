@@ -324,3 +324,22 @@ button.ghost:active { border-color: var(--primary); color: var(--primary); }
   font-weight: 600;
 }
 .bottom-nav .tab.active .ico { filter: none; }
+
+/* 打开即强提醒横幅（不依赖系统通知，任何浏览器生效） */
+.loud-alert {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  color: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  font-size: 16px;
+  line-height: 1.4;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+  animation: loudPulse 1.6s ease-in-out infinite;
+}
+.loud-alert b { font-size: 18px; }
+.loud-alert .loud-sub { font-size: 13px; opacity: 0.92; margin-top: 4px; font-weight: 400; }
+@keyframes loudPulse {
+  0%, 100% { box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35); }
+  50% { box-shadow: 0 6px 28px rgba(239, 68, 68, 0.65); }
+}
