@@ -92,10 +92,32 @@ function cardHTML(it) {
   </div>`;
 }
 
+// 打开 App 时的大声提醒：红色横幅（不依赖系统通知，任何浏览器都生效）
+function showLoudAlert(due) {
+  const view = $('view-today');
+  const old = $('loudAlert');
+  if (old) old.remove();
+  if (!due.length) return;
+  const el = document.createElement('div');
+  el.id = 'loudAlert';
+  el.className = 'loud-alert';
+  el.innerHTML = `🔔 <b>今天有 ${due.length} 条待复习！</b><div class="loud-sub">线下复习完后，记得回来点「已复习」打勾</div>`;
+  view.insertBefore(el, view.firstChild);
+}
+
+// 打开/回到 App 时震动一下（安卓支持的浏览器才生效，不支持就静默忽略）
+function nudgeReminder() {
+  const due = getDueItems(items, todayStr());
+  if (due.length && navigator.vibrate) {
+    try { navigator.vibrate([300, 150, 300]); } catch (_) {}
+  }
+}
+
 function renderToday() {
   const today = todayStr();
   const due = getDueItems(items, today);
   $('todayCount').textContent = due.length ? `今天有 ${due.length} 条待复习` : '今天没有待复习 🎉';
+  showLoudAlert(due);
   if (!due.length) {
     $('todayList').innerHTML = `<div class="empty">暂时没有需要复习的内容。<br>在上方记下今天要记的东西吧。</div>`;
     return;
@@ -364,9 +386,10 @@ async function init() {
 
   // 打开即评估提醒；每 15 分钟重新评估（确保被划掉的通知会回来）
   await ensureReminder();
-  setInterval(ensureReminder, 15 * 60 * 1000);
+  nudgeReminder();
+  setInterval(() => { ensureReminder(); renderToday(); }, 15 * 60 * 1000);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) ensureReminder();
+    if (!document.hidden) { renderToday(); nudgeReminder(); ensureReminder(); }
   });
 }
 
